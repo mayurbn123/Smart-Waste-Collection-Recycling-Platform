@@ -1,0 +1,20 @@
+{
+  "name": "eco-collect-smart-waste",
+  "version": "1.0.0",
+  "description": "Smart Waste Collection & Recycling Platform for FIT-FEST 2026 Hackathon",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "hackathon",
+    "waste-management",
+    "recycling",
+    "cloud-run",
+    "sustainability"
+  ],
+  "author": "Hackathon Developer",
+  "license": "MIT",
+  "dependencies": {}
+}

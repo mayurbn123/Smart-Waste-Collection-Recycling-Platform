@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoCollect | Smart Waste Collection & Recycling Platform</title>
+  <meta name="description" content="Doorstep smart waste collection, eco-rewards, and recycling tracking platform for FIT-FEST 2026 Hackathon.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-dark">
+
+  <!-- Top Announcement Bar -->
+  <aside class="hackathon-banner" aria-label="Hackathon Announcement">
+    <div class="banner-content">
+      <span class="badge-pulse"></span>
+      <strong>FIT-FEST 2026 HACKATHON</strong> &bull; Challenge 4: Smart Waste Collection &amp; Recycling Platform
+      <span class="banner-tag">Google Cloud Run Ready</span>
+    </div>
+  </aside>
+
+  <!-- Navigation Bar -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-logo" id="brandLogo">
+        <div class="logo-icon-wrap">
+          <span class="logo-emoji">🌱</span>
+          <span class="logo-glow"></span>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">EcoCollect<span class="accent-dot">.</span></span>
+          <span class="brand-tagline">Smart Waste &amp; Recycling OS</span>
+        </div>
+      </div>
+
+      <nav class="nav-links" id="mainNav">
+        <button class="nav-btn active" data-view="bookView" id="navBookBtn">
+          <span class="nav-icon">📅</span> Book Pickup
+        </button>
+        <button class="nav-btn" data-view="trackView" id="navTrackBtn">
+          <span class="nav-icon">📍</span> Track Request
+        </button>
+        <button class="nav-btn" data-view="guideView" id="navGuideBtn">
+          <span class="nav-icon">♻️</span> Waste Guide
+        </button>
+        <button class="nav-btn" data-view="statsView" id="navStatsBtn">
+          <span class="nav-icon">📊</span> Impact Analytics
+        </button>
+        <button class="nav-btn nav-btn-admin" data-view="adminView" id="navAdminBtn">
+          <span class="nav-icon">👨‍💼</span> Dispatcher Portal
+        </button>
+      </nav>
+
+      <div class="header-actions">
+        <button class="btn btn-outline btn-sm" id="demoDataBtn" title="Reset with demo submissions">
+          ⚡ Demo Data
+        </button>
+        <button class="btn btn-primary btn-sm" id="headerCtaBtn">
+          + New Pickup
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Live Environmental Impact Counter Strip -->
+  <section class="metrics-strip">
+    <div class="metrics-container" id="metricsStrip">
+      <div class="metric-card">
+        <div class="metric-icon-box eco-green">♻️</div>
+        <div class="metric-data">
+          <span class="metric-value" id="statTotalKg">Loading...</span>
+          <span class="metric-label">Kg Waste Diverted</span>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon-box eco-cyan">🍃</div>
+        <div class="metric-data">
+          <span class="metric-value" id="statCo2Saved">Loading...</span>
+          <span class="metric-label">Kg CO₂ Prevented</span>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon-box eco-amber">🌳</div>
+        <div class="metric-data">
+          <span class="metric-value" id="statTrees">Loading...</span>
+          <span class="metric-label">Tree-Year Absorptions</span>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon-box eco-purple">⭐</div>
+        <div class="metric-data">
+          <span class="metric-value" id="statEcoPoints">Loading...</span>
+          <span class="metric-label">Eco-Reward Points</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Application Content Views Container -->
+  <main class="main-content">
+
+    <!-- VIEW 1: BOOK PICKUP FORM -->
+    <section class="view-panel active" id="bookView">
+      <div class="hero-section">
+        <div class="hero-badge">Smart City Doorstep Collection</div>
+        <h1 class="hero-title">Schedule Responsible Waste Pickup in Seconds</h1>
+        <p class="hero-subtitle">
+          Select your waste category, set a doorstep pickup slot, and track real-time collection. Earn eco-reward points for every kilogram recycled!
+        </p>
+      </div>
+
+      <div class="booking-layout">
+        <!-- Form Section -->
+        <div class="booking-form-card glass-panel">
+          <form id="pickupForm" novalidate>
+            
+            <!-- Step 1: Waste Category -->
+            <div class="form-step-section">
+              <div class="step-header">
+                <span class="step-number">1</span>
+                <div>
+                  <h2 class="step-title">Choose Waste Category</h2>
+                  <p class="step-desc">Pick the primary waste category you want collected for sorting</p>
+                </div>
+              </div>
+
+              <div class="category-grid" id="categoryGrid">
+                <!-- Dynamically populated categories -->
+                <div class="loading-spinner">Loading categories...</div>
+              </div>
+              <input type="hidden" name="category" id="selectedCategoryInput" value="plastic" required>
+            </div>
+
+            <!-- Step 2: Weight & Scheduling -->
+            <div class="form-step-section">
+              <div class="step-header">
+                <span class="step-number">2</span>
+                <div>
+                  <h2 class="step-title">Quantity &amp; Time Slot</h2>
+                  <p class="step-desc">Estimate weight to allocate the right vehicle capacity</p>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="estimatedWeightInput" class="form-label">
+                    Estimated Weight (Kg)
+                    <span class="form-hint" id="weightDisplay">5.0 kg</span>
+                  </label>
+                  <input type="range" class="form-range" id="estimatedWeightInput" name="estimatedWeightKg" min="1" max="50" step="0.5" value="5">
+                  <div class="range-labels">
+                    <span>1 kg</span>
+                    <span>10 kg</span>
+                    <span>25 kg</span>
+                    <span>50 kg+</span>
+                  </div>
+                </div>
+
+                <div class="form-group flex-1">
+                  <label for="scheduledDateInput" class="form-label">Pickup Date</label>
+                  <input type="date" class="form-control" id="scheduledDateInput" name="scheduledDate" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Preferred Time Window</label>
+                <div class="slot-chips">
+                  <label class="slot-chip">
+                    <input type="radio" name="timeSlot" value="Morning (08:00 AM - 11:30 AM)" checked>
+                    <span>🌅 Morning (08:00 AM - 11:30 AM)</span>
+                  </label>
+                  <label class="slot-chip">
+                    <input type="radio" name="timeSlot" value="Afternoon (12:30 PM - 03:30 PM)">
+                    <span>☀️ Afternoon (12:30 PM - 03:30 PM)</span>
+                  </label>
+                  <label class="slot-chip">
+                    <input type="radio" name="timeSlot" value="Evening (04:30 PM - 07:30 PM)">
+                    <span>🌆 Evening (04:30 PM - 07:30 PM)</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3: Location Details -->
+            <div class="form-step-section">
+              <div class="step-header">
+                <span class="step-number">3</span>
+                <div>
+                  <h2 class="step-title">Pickup Address &amp; Contact</h2>
+                  <p class="step-desc">Our verified collection agent will arrive at this address</p>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="userNameInput" class="form-label">Your Name</label>
+                  <input type="text" class="form-control" id="userNameInput" name="userName" placeholder="e.g. Om Pawar" required>
+                </div>
+                <div class="form-group flex-1">
+                  <label for="userPhoneInput" class="form-label">Mobile Number</label>
+                  <input type="tel" class="form-control" id="userPhoneInput" name="userPhone" placeholder="e.g. +91 70457 82996" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="label-with-action">
+                  <label for="pickupAddressInput" class="form-label">Doorstep Address / Building</label>
+                  <button type="button" class="btn-geo" id="geoLocateBtn" title="Detect Location">
+                    📍 Auto-Detect Location
+                  </button>
+                </div>
+                <input type="text" class="form-control" id="pickupAddressInput" name="pickupAddress" placeholder="e.g. Flat 304, Green Heights, Tech Zone 4" required>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="landmarkInput" class="form-label">Landmark</label>
+                  <input type="text" class="form-control" id="landmarkInput" name="landmark" placeholder="Near Metro Pillar #124">
+                </div>
+                <div class="form-group flex-1">
+                  <label for="cityInput" class="form-label">City</label>
+                  <input type="text" class="form-control" id="cityInput" name="city" value="Noida" required>
+                </div>
+                <div class="form-group flex-1">
+                  <label for="pincodeInput" class="form-label">Pincode</label>
+                  <input type="text" class="form-control" id="pincodeInput" name="pincode" value="201303" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="notesInput" class="form-label">Special Notes / Waste Description (Optional)</label>
+                <textarea class="form-control" id="notesInput" name="notes" rows="2" placeholder="e.g. 3 boxes of old cardboard and plastic containers kept in the garage."></textarea>
+              </div>
+            </div>
+
+            <!-- Submit Button Area -->
+            <div class="form-submit-row">
+              <button type="submit" class="btn btn-primary btn-lg" id="submitPickupBtn">
+                🚀 Confirm &amp; Dispatch Pickup Request
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Dynamic Live Summary Card -->
+        <div class="booking-sidebar">
+          <div class="summary-card glass-panel sticky-card">
+            <h3 class="summary-title">Pickup Summary</h3>
+            <div class="summary-badge" id="summaryCategoryBadge">Plastic Waste</div>
+
+            <div class="summary-details">
+              <div class="summary-row">
+                <span class="s-label">Category:</span>
+                <span class="s-val" id="summaryCategoryName">Plastic Waste</span>
+              </div>
+              <div class="summary-row">
+                <span class="s-label">Estimated Weight:</span>
+                <span class="s-val" id="summaryWeight">5.0 Kg</span>
+              </div>
+              <div class="summary-row">
+                <span class="s-label">Eco-Points Earned:</span>
+                <span class="s-val highlight-green" id="summaryPoints">+75 Points</span>
+              </div>
+              <div class="summary-row">
+                <span class="s-label">CO₂ Reduction:</span>
+                <span class="s-val highlight-cyan" id="summaryCo2">~9.0 Kg CO₂</span>
+              </div>
+              <div class="summary-row">
+                <span class="s-label">Target Bin:</span>
+                <span class="s-val" id="summaryBin">Yellow Bin</span>
+              </div>
+            </div>
+
+            <div class="summary-tip-box" id="summaryTip">
+              💡 <strong>Pro Tip:</strong> Rinse food residue before pickup to accelerate sorting and prevent contamination.
+            </div>
+
+            <div class="guarantee-box">
+              <div class="guarantee-item">
+                <span class="g-icon">🛡️</span>
+                <span>Verified Authorized Recyclers</span>
+              </div>
+              <div class="guarantee-item">
+                <span class="g-icon">⏱️</span>
+                <span>Real-Time SMS &amp; GPS Updates</span>
+              </div>
+              <div class="guarantee-item">
+                <span class="g-icon">📜</span>
+                <span>Green Recycling Certificate</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: TRACK REQUEST & STATUS TIMELINE -->
+    <section class="view-panel" id="trackView">
+      <div class="section-header">
+        <h2 class="section-title">Live Pickup Status &amp; Tracking</h2>
+        <p class="section-desc">Enter your unique Request Tracking ID to monitor assigned vehicle, driver status, and collection progress.</p>
+      </div>
+
+      <div class="track-search-bar glass-panel">
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="trackInput" class="form-control" placeholder="Enter Request ID (e.g. ECO-9281, ECO-9282)" value="ECO-9281">
+        </div>
+        <button class="btn btn-primary" id="trackSearchBtn">Track Request</button>
+      </div>
+
+      <!-- Quick Demo Chips -->
+      <div class="demo-track-chips">
+        <span>Try Demo IDs:</span>
+        <button class="chip-btn" data-id="ECO-9281">ECO-9281 (In Route)</button>
+        <button class="chip-btn" data-id="ECO-9282">ECO-9282 (Collected)</button>
+        <button class="chip-btn" data-id="ECO-9283">ECO-9283 (Pending)</button>
+        <button class="chip-btn" data-id="ECO-9284">ECO-9284 (Assigned)</button>
+      </div>
+
+      <!-- Tracking Card Display -->
+      <div class="track-result-wrapper" id="trackResultWrapper">
+        <div class="track-card glass-panel" id="trackCard">
+          <div class="track-header">
+            <div>
+              <span class="track-code" id="trackRequestId">ECO-9281</span>
+              <span class="status-badge status-in-route" id="trackStatusBadge">In Route</span>
+            </div>
+            <div class="track-meta">
+              <span id="trackCreatedDate">Scheduled for Today</span>
+            </div>
+          </div>
+
+          <!-- Visual Progress Stepper -->
+          <div class="progress-stepper" id="progressStepper">
+            <div class="step-node completed" data-step="Pending">
+              <div class="node-circle">1</div>
+              <span class="node-label">Submitted</span>
+            </div>
+            <div class="step-line active"></div>
+            <div class="step-node completed" data-step="Assigned">
+              <div class="node-circle">2</div>
+              <span class="node-label">Assigned</span>
+            </div>
+            <div class="step-line active"></div>
+            <div class="step-node active" data-step="In Route">
+              <div class="node-circle">3</div>
+              <span class="node-label">En Route</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-node" data-step="Collected">
+              <div class="node-circle">4</div>
+              <span class="node-label">Collected</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-node" data-step="Recycled">
+              <div class="node-circle">5</div>
+              <span class="node-label">Recycled</span>
+            </div>
+          </div>
+
+          <!-- Driver & Request Details Grid -->
+          <div class="track-grid">
+            <div class="track-detail-col">
+              <h4 class="track-col-heading">Collection &amp; Citizen Details</h4>
+              <div class="detail-pair">
+                <span class="d-label">Citizen:</span>
+                <span class="d-val" id="trackUserName">Aarav Mehta</span>
+              </div>
+              <div class="detail-pair">
+                <span class="d-label">Category:</span>
+                <span class="d-val" id="trackCategory">E-Waste &amp; Electronics</span>
+              </div>
+              <div class="detail-pair">
+                <span class="d-label">Estimated Weight:</span>
+                <span class="d-val" id="trackWeight">8.5 Kg</span>
+              </div>
+              <div class="detail-pair">
+                <span class="d-label">Pickup Address:</span>
+                <span class="d-val" id="trackAddress">B-402, Green Meadows Residency, Sector 62, Noida</span>
+              </div>
+              <div class="detail-pair">
+                <span class="d-label">Slot:</span>
+                <span class="d-val" id="trackSlot">Morning (09:00 AM - 12:00 PM)</span>
+              </div>
+            </div>
+
+            <div class="track-detail-col">
+              <h4 class="track-col-heading">Assigned Driver &amp; Eco Impact</h4>
+              <div class="driver-card">
+                <div class="driver-avatar">🚛</div>
+                <div class="driver-info">
+                  <span class="driver-name" id="trackDriverName">Ramesh Kumar</span>
+                  <span class="driver-truck" id="trackDriverPhone">+91 98111 22334 (EV Truck)</span>
+                </div>
+                <a href="tel:+919811122334" class="btn btn-sm btn-outline" id="callDriverBtn">📞 Call</a>
+              </div>
+
+              <div class="eco-reward-banner">
+                <div class="reward-item">
+                  <span class="reward-title">Points Allocated</span>
+                  <span class="reward-val" id="trackPoints">297 Pts</span>
+                </div>
+                <div class="reward-item">
+                  <span class="reward-title">CO₂ Avoided</span>
+                  <span class="reward-val" id="trackCo2">29.7 Kg</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Audit Timeline Log -->
+          <div class="timeline-section">
+            <h4 class="track-col-heading">Audit &amp; Dispatch Timeline</h4>
+            <div class="timeline-list" id="trackTimeline">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <div class="track-card-footer">
+            <button class="btn btn-outline" id="printReceiptBtn">
+              🖨️ Print Green Certificate
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: WASTE CATEGORY & DISPOSAL DIRECTORY -->
+    <section class="view-panel" id="guideView">
+      <div class="section-header">
+        <h2 class="section-title">Waste Classification &amp; Segregation Guide</h2>
+        <p class="section-desc">Learn how to properly segregate waste at home, identify color-coded bins, and avoid landfill pollution.</p>
+      </div>
+
+      <!-- Quick AI Helper Search -->
+      <div class="guide-search-bar glass-panel">
+        <input type="text" id="guideSearchInput" class="form-control" placeholder="Search any item (e.g. battery, milk pouch, cardboard box, CFL bulb, glass jar)...">
+      </div>
+
+      <div class="guide-grid" id="guideCardsGrid">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Segregation Quick Rules Matrix -->
+      <div class="rules-card glass-panel">
+        <h3 class="rules-title">Smart Segregation Golden Rules</h3>
+        <div class="rules-grid">
+          <div class="rule-box">
+            <div class="rule-icon">🚿</div>
+            <h4>Dry &amp; Clean</h4>
+            <p>Always wash food and drink containers. Recyclers reject greasy paper and unwashed plastic.</p>
+          </div>
+          <div class="rule-box">
+            <div class="rule-icon">📦</div>
+            <h4>Flatten Cartons</h4>
+            <p>Flatten cardboard boxes before collection to maximize vehicle load efficiency.</p>
+          </div>
+          <div class="rule-box">
+            <div class="rule-icon">🔋</div>
+            <h4>Never Mix E-Waste</h4>
+            <p>Lithium batteries cause fires in garbage compactors. Always use dedicated e-waste pickups.</p>
+          </div>
+          <div class="rule-box">
+            <div class="rule-icon">⚠️</div>
+            <h4>Hazardous Segregation</h4>
+            <p>Paints, chemical bottles, and pharmaceuticals must be handed over in original sealed containers.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: ADMIN / DISPATCHER DASHBOARD -->
+    <section class="view-panel" id="adminView">
+      <div class="admin-header-row">
+        <div>
+          <div class="admin-badge">Admin &amp; Dispatcher Control Center</div>
+          <h2 class="section-title">Pickup Management &amp; Fleet Operations</h2>
+          <p class="section-desc">Monitor live incoming citizen requests, assign collection vehicles, and advance recycling statuses.</p>
+        </div>
+        <div class="admin-top-actions">
+          <button class="btn btn-outline" id="adminRefreshBtn">🔄 Refresh Data</button>
+          <button class="btn btn-secondary" id="exportDataBtn">📥 Export CSV</button>
+        </div>
+      </div>
+
+      <!-- Admin KPI Counters -->
+      <div class="admin-kpis">
+        <div class="kpi-card glass-panel">
+          <span class="kpi-title">Total Requests</span>
+          <span class="kpi-val" id="kpiTotal">0</span>
+          <span class="kpi-sub">Across all sectors</span>
+        </div>
+        <div class="kpi-card glass-panel kpi-alert">
+          <span class="kpi-title">Pending Assignment</span>
+          <span class="kpi-val" id="kpiPending">0</span>
+          <span class="kpi-sub">Needs driver allocation</span>
+        </div>
+        <div class="kpi-card glass-panel kpi-info">
+          <span class="kpi-title">Active Dispatches</span>
+          <span class="kpi-val" id="kpiActive">0</span>
+          <span class="kpi-sub">Trucks en route</span>
+        </div>
+        <div class="kpi-card glass-panel kpi-success">
+          <span class="kpi-title">Completed &amp; Recycled</span>
+          <span class="kpi-val" id="kpiCompleted">0</span>
+          <span class="kpi-sub">Successfully processed</span>
+        </div>
+      </div>
+
+      <!-- Filters & Search Toolbar -->
+      <div class="admin-toolbar glass-panel">
+        <div class="toolbar-search">
+          <span class="search-icon">🔎</span>
+          <input type="text" id="adminSearchInput" class="form-control" placeholder="Search by ID, Citizen, City, Address...">
+        </div>
+
+        <div class="toolbar-filters">
+          <div class="filter-group">
+            <label for="filterStatus">Status:</label>
+            <select id="filterStatus" class="form-select">
+              <option value="all">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Assigned">Assigned</option>
+              <option value="In Route">In Route</option>
+              <option value="Collected">Collected</option>
+              <option value="Recycled">Recycled</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filterCategory">Category:</label>
+            <select id="filterCategory" class="form-select">
+              <option value="all">All Categories</option>
+              <option value="plastic">Plastic</option>
+              <option value="organic">Organic</option>
+              <option value="ewaste">E-Waste</option>
+              <option value="paper">Paper</option>
+              <option value="metal_glass">Metal &amp; Glass</option>
+              <option value="hazardous">Hazardous</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Table -->
+      <div class="table-container glass-panel">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Citizen &amp; Contact</th>
+              <th>Category</th>
+              <th>Weight</th>
+              <th>Address / City</th>
+              <th>Slot</th>
+              <th>Current Status</th>
+              <th>Assigned Driver</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody">
+            <!-- Dynamic rows -->
+          </tbody>
+        </table>
+        <div class="table-empty" id="tableEmptyState" style="display:none;">
+          No pickup requests matched the current search/filters.
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 5: COMMUNITY IMPACT & ANALYTICS -->
+    <section class="view-panel" id="statsView">
+      <div class="section-header">
+        <h2 class="section-title">Community Recycling Analytics</h2>
+        <p class="section-desc">Measurable environmental metrics showing municipal diversion rates, landfill reduction, and citizen involvement.</p>
+      </div>
+
+      <div class="analytics-layout">
+        <!-- Visual Category Distribution -->
+        <div class="chart-card glass-panel">
+          <h3 class="chart-title">Collected Volume by Category (Kg)</h3>
+          <p class="chart-subtitle">Breakdown of materials diverted from municipal dumping grounds</p>
+          <div class="category-bars-list" id="categoryBarsList">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Environmental Equivalent Highlights -->
+        <div class="impact-cards-col">
+          <div class="eco-hero-card glass-panel">
+            <div class="eco-hero-icon">🌍</div>
+            <div class="eco-hero-num" id="analyticsCo2Num">0 Kg</div>
+            <div class="eco-hero-title">Net Greenhouse Gas Emissions Prevented</div>
+            <p class="eco-hero-desc">Equivalent to taking 12 petrol cars off city roads for an entire week!</p>
+          </div>
+
+          <div class="eco-hero-card glass-panel">
+            <div class="eco-hero-icon">🏆</div>
+            <div class="eco-hero-num" id="analyticsPointsNum">0 Pts</div>
+            <div class="eco-hero-title">Total Eco-Points Distributed</div>
+            <p class="eco-hero-desc">Citizens can redeem points for electricity discounts, tree plantation drives, and metro credits.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: Update Status / Dispatcher Assignment -->
+  <div class="modal-overlay" id="statusModal" aria-hidden="true">
+    <div class="modal-dialog glass-panel">
+      <div class="modal-header">
+        <h3 class="modal-title">Update Request Dispatch</h3>
+        <button class="modal-close" id="closeStatusModalBtn">&times;</button>
+      </div>
+      <form id="updateStatusForm">
+        <input type="hidden" id="modalRequestId">
+        <div class="modal-body">
+          <div class="modal-meta-box">
+            <div>Updating: <strong id="modalRequestCode">ECO-0000</strong></div>
+            <div class="modal-citizen-name" id="modalCitizenName">Citizen Name</div>
+          </div>
+
+          <div class="form-group">
+            <label for="modalStatusSelect" class="form-label">New Status</label>
+            <select id="modalStatusSelect" class="form-select" required>
+              <option value="Pending">Pending (Waiting Assignment)</option>
+              <option value="Assigned">Assigned (Vehicle Scheduled)</option>
+              <option value="In Route">In Route (Truck Dispatched)</option>
+              <option value="Collected">Collected (Waste Picked Up)</option>
+              <option value="Recycled">Recycled (Facility Processed)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="modalDriverInput" class="form-label">Assigned Driver / Vehicle</label>
+            <input type="text" class="form-control" id="modalDriverInput" placeholder="e.g. Ramesh Kumar (Truck #UP-16-EK-402)">
+          </div>
+
+          <div class="form-group">
+            <label for="modalDriverPhoneInput" class="form-label">Driver Contact Number</label>
+            <input type="tel" class="form-control" id="modalDriverPhoneInput" placeholder="e.g. +91 98111 22334">
+          </div>
+
+          <div class="form-group">
+            <label for="modalNoteInput" class="form-label">Timeline Audit Note</label>
+            <input type="text" class="form-control" id="modalNoteInput" placeholder="e.g. Driver reached pickup doorstep">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="cancelModalBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveModalBtn">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Green Certificate / Eco Receipt -->
+  <div class="modal-overlay" id="certificateModal" aria-hidden="true">
+    <div class="modal-dialog glass-panel cert-dialog">
+      <div class="cert-body" id="certificatePrintable">
+        <div class="cert-badge">Official Recycling Certificate</div>
+        <h2 class="cert-title">Green Citizen Commendation</h2>
+        <p class="cert-subtitle">Presented by FIT-FEST 2026 EcoCollect Municipal Initiative</p>
+        
+        <div class="cert-card-box">
+          <div class="cert-row">
+            <span>Recipient:</span>
+            <strong id="certUserName">Aarav Mehta</strong>
+          </div>
+          <div class="cert-row">
+            <span>Certificate ID:</span>
+            <strong id="certCode">ECO-9281-CERT</strong>
+          </div>
+          <div class="cert-row">
+            <span>Waste Diverted:</span>
+            <strong id="certWeight">8.5 Kg E-Waste</strong>
+          </div>
+          <div class="cert-row">
+            <span>Carbon Avoided:</span>
+            <strong id="certCo2" class="highlight-green">29.7 Kg CO₂</strong>
+          </div>
+          <div class="cert-row">
+            <span>Eco-Reward Credits:</span>
+            <strong id="certPoints" class="highlight-purple">+297 Points</strong>
+          </div>
+        </div>
+
+        <p class="cert-footer-text">
+          Thank you for preventing hazardous and recyclable waste from reaching landfills. Your commitment drives our smart sustainable future!
+        </p>
+
+        <div class="cert-seal">🌿 VERIFIED ZERO LANDFILL 🌿</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="closeCertBtn">Close</button>
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <div class="footer-brand">🌱 EcoCollect</div>
+        <p>Smart Waste Collection &amp; Recycling Platform &bull; Developed for FIT-FEST 2026 Hackathon</p>
+        <p class="footer-credits">Candidate: <strong>Om Pawar</strong> | Email: flora.education@gmail.com | Phone: +91 7045782996</p>
+      </div>
+      <div class="footer-right">
+        <div class="footer-pill">Google Cloud Run Compatible</div>
+        <div class="footer-pill">Clean Node.js Architecture</div>
+        <div class="footer-pill">Zero External Bloat</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
